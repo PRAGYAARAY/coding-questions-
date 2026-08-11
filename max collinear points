@@ -1,0 +1,145 @@
+probelm statement 
+## Maximum Number of Collinear Points
+
+You are given two integer arrays `X[]` and `Y[]` of the same length `N`, where the point at index `i` is represented as `(X[i], Y[i])`.
+
+Find the **maximum number of points that lie on the same straight line**.
+
+### Important Notes
+
+* A point is represented by the pair `(X[i], Y[i])`.
+* If the same point appears multiple times, **each occurrence is counted separately**.
+* The output should be a single integer representing the maximum number of collinear points.
+
+### Example 1
+
+**Input**
+
+
+X = [0, 1, 2]
+Y = [0, 1, 2]
+
+
+**Output**
+3
+
+
+**Explanation**
+
+The points `(0,0)`, `(1,1)`, and `(2,2)` lie on the same line.
+
+
+
+### Example 2
+
+
+
+
+X = [0, 1, 1]
+Y = [0, 1, 0]
+
+
+**Output**
+
+
+2
+```
+
+**Explanation**
+
+No line passes through all three points, so the maximum number of collinear points is 2.
+
+---
+
+### Example 3
+
+**Input**
+
+```text
+X = [0, 1, 1, 1, 2]
+Y = [0, 1, 1, 1, 2]
+```
+
+**Output**
+
+5
+```
+
+**Explanation**
+
+The point `(1,1)` appears three times. All five points lie on the line `y = x`, so the answer is 5.
+
+
+Return the maximum number of collinear points.
+
+
+
+PYHTON IMPLEMENTATION(might be wrong)
+
+from collections import defaultdict
+from math import gcd
+
+def max_collinear_points(X, Y):
+    n = len(X)
+    
+    if n <= 2:
+        return n
+
+    ans = 0
+
+    for i in range(n):
+        slopes = defaultdict(int)
+        duplicates = 1   # count the point itself
+
+        x1, y1 = X[i], Y[i]
+
+        for j in range(i + 1, n):
+            x2, y2 = X[j], Y[j]
+
+            dx = x2 - x1
+            dy = y2 - y1
+
+            # Duplicate point
+            if dx == 0 and dy == 0:
+                duplicates += 1
+                continue
+
+            # Normalize slope using gcd
+            g = gcd(dx, dy)
+            dx //= g
+            dy //= g
+
+            # Keep a unique representation
+            if dx < 0:
+                dx = -dx
+                dy = -dy
+            elif dx == 0:
+                dy = 1      # vertical line
+            elif dy == 0:
+                dx = 1      # horizontal line
+
+            slopes[(dy, dx)] += 1
+
+        max_on_line = 0
+        for count in slopes.values():
+            max_on_line = max(max_on_line, count)
+
+        ans = max(ans, duplicates + max_on_line)
+
+    return ans
+
+
+# Example 1
+X = [0, 1, 2]
+Y = [0, 1, 2]
+print(max_collinear_points(X, Y))   # 3
+
+# Example 2
+X = [0, 1, 1]
+Y = [0, 1, 0]
+print(max_collinear_points(X, Y))   # 2
+
+# Example 3
+X = [0, 1, 1, 1, 2]
+Y = [0, 1, 1, 1, 2]
+print(max_collinear_points(X, Y))   # 5

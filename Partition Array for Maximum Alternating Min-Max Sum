@@ -182,3 +182,66 @@ After choosing the first partition, the remaining suffix is solved optimally by 
 This satisfies the constraints `N ≤ 5000`.
 
 
+
+
+
+
+
+DP PYHTON CODE 
+
+def max_sum_after_partitioning(arr: list[int], k: int) -> int:
+    n = len(arr)
+    # dp[i][1] -> Odd partition, dp[i][0] -> Even partition
+    dp = [[0, 0] for _ in range(n + 1)]
+
+    for i in range(n - 1, -1, -1):
+        cur_min = float("inf")
+        cur_max = float("-inf")
+
+        for len_ in range(1, min(k, n - i) + 1):
+            val = arr[i + len_ - 1]
+            cur_min = min(cur_min, val)
+            cur_max = max(cur_max, val)
+
+            # Odd partition transition
+            dp[i][1] = max(dp[i][1], len_ * cur_min + dp[i + len_][0])
+            # Even partition transition
+            dp[i][0] = max(dp[i][0], len_ * cur_max + dp[i + len_][1])
+
+    return dp[0][1]
+
+
+
+
+SPACE OPTIMIZED CODE( NOT MINE)
+
+def max_sum_after_partitioning_optimized(arr: list[int], k: int) -> int:
+    n = len(arr)
+    # Modulo ring buffer storing dp states for indices in range [i, i+k]
+    dp = [[0, 0] for _ in range(k + 1)]
+
+    for i in range(n - 1, -1, -1):
+        cur_min = float("inf")
+        cur_max = float("-inf")
+
+        curr_idx = i % (k + 1)
+        dp[curr_idx] = [0, 0]  # Reset current entry
+
+        for length in range(1, min(k, n - i) + 1):
+            val = arr[i + length - 1]
+            cur_min = min(cur_min, val)
+            cur_max = max(cur_max, val)
+
+            next_idx = (i + length) % (k + 1)
+
+            # Odd partition -> next is Even
+            dp[curr_idx][1] = max(
+                dp[curr_idx][1], length * cur_min + dp[next_idx][0]
+            )
+
+            # Even partition -> next is Odd
+            dp[curr_idx][0] = max(
+                dp[curr_idx][0], length * cur_max + dp[next_idx][1]
+            )
+
+    return dp[0][1]
